@@ -1,22 +1,35 @@
 # =============================================================
 # Trivy Ignore File
 # =============================================================
-# WHY? Some vulnerabilities are:
-#   1. In dev-only dependencies that don't ship to production
-#   2. Have no fix available yet (unfixed)
-#   3. Are false positives for our specific use case
+# WHY? Some vulnerabilities are in the Node.js base image's
+# BUNDLED global npm (/usr/local/lib/node_modules/npm/) — NOT our app code.
+# These packages are only used by npm CLI itself (not at runtime by our app).
 #
-# IMPORTANT: Always document WHY you're ignoring a CVE.
-# Uncommented ignores = security debt = audit failure.
+# WHAT WE'RE IGNORING AND WHY:
+#   picomatch CVEs — in node:22-alpine's bundled npm internals.
+#     Our app does NOT use picomatch at runtime (only jest uses it for testing).
+#     The production image runs 'node src/server.js' — npm is never invoked.
 #
-# FORMAT: CVE-ID  # Comment explaining why
+#   brace-expansion CVE — same: bundled in npm CLI, not used by our app at runtime.
+#
+# These are ACCEPTED RISKS because:
+#   1. The attack vector requires the attacker to control a file glob pattern
+#      passed to our app — which our API does not expose.
+#   2. npm is never called at runtime inside the container.
+#   3. We are monitoring for fixed versions and will remove these ignores
+#      when node:22-alpine ships a patched npm version.
 # =============================================================
 
-# The following are in picomatch (used by jest/nodemon — dev deps only)
-# They do NOT exist in the production image (npm ci --omit=dev)
-# If Trivy still reports them, they come from Node.js internals — not our code.
-# CVE-2026-33671
-# CVE-2026-33672
+# HIGH: picomatch - ReDoS via crafted extglob patterns
+# Location: /usr/local/lib/node_modules/npm/node_modules/picomatch/
+# Why acceptable: npm is never invoked at container runtime; only 'node src/server.js' runs.
+CVE-2026-33671
 
-# The following is in brace-expansion (used by glob/jest — dev deps only)
-# CVE-2026-33750
+# MEDIUM: picomatch - Data integrity via POSIX bracket expression injection
+# Same location and rationale as above.
+CVE-2026-33672
+
+# MEDIUM: brace-expansion - DoS via zero step value
+# Location: /usr/local/lib/node_modules/npm/node_modules/brace-expansion/
+# Same rationale: brace-expansion is only used by npm CLI, not at runtime.
+CVE-2026-33750
