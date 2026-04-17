@@ -1,0 +1,22 @@
+# =============================================================
+# Trivy Ignore File
+# =============================================================
+# WHY? Some vulnerabilities are:
+#   1. In dev-only dependencies that don't ship to production
+#   2. Have no fix available yet (unfixed)
+#   3. Are false positives for our specific use case
+#
+# IMPORTANT: Always document WHY you're ignoring a CVE.
+# Uncommented ignores = security debt = audit failure.
+#
+# FORMAT: CVE-ID  # Comment explaining why
+# =============================================================
+
+# The following are in picomatch (used by jest/nodemon — dev deps only)
+# They do NOT exist in the production image (npm ci --omit=dev)
+# If Trivy still reports them, they come from Node.js internals — not our code.
+# CVE-2026-33671
+# CVE-2026-33672
+
+# The following is in brace-expansion (used by glob/jest — dev deps only)
+# CVE-2026-33750
