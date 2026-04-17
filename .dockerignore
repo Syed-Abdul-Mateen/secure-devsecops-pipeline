@@ -24,11 +24,11 @@ npm-debug.log*
 .git/
 .gitignore
 
-# Test files — not needed in production container
-tests/
+# Test files — excluded from production image
+# NOTE: tests/ is NOT excluded here because the Dockerfile builder stage
+# needs it to run 'npm test' inside Docker. Multi-stage build ensures
+# tests/ never reaches the final production image (only src/ is copied).
 coverage/
-*.test.js
-*.spec.js
 
 # Editor files
 .vscode/
