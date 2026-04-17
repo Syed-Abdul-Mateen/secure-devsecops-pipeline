@@ -1,0 +1,92 @@
+# =============================================================
+# Docker Compose — Local Development
+# =============================================================
+# WHY docker-compose?
+# Running `docker run` with all the flags is tedious and error-prone.
+# docker-compose.yml is a declarative config file that describes
+# your entire multi-container setup. One command starts everything.
+#
+# Run: docker compose up --build
+# Stop: docker compose down
+# =============================================================
+
+version: '3.8'
+
+services:
+  # =============================================================
+  # The main Node.js application
+  # =============================================================
+  app:
+    # Build from our Dockerfile in the current directory
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Build specifically for production (uses the 'production' stage)
+      target: production
+
+    # Map host port 3000 → container port 3000
+    # WHY? Container is isolated. Without port mapping, you can't
+    # reach it from your browser.
+    ports:
+      - "3000:3000"
+
+    # Environment variables
+    # WHY env_file instead of hardcoding?
+    # env_file reads from .env file — keeps secrets out of version control
+    env_file:
+      - .env
+
+    # Override specific env vars for Docker environment
+    environment:
+      - NODE_ENV=production
+
+    # =============================================================
+    # Health check for Docker Compose
+    # Docker Compose will wait for this health check before
+    # starting any services that depend on 'app'
+    # =============================================================
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+    # Restart policy
+    # WHY always? If the container crashes, Docker restarts it.
+    # In production, this ensures uptime even after crashes.
+    restart: unless-stopped
+
+    # Limit resources
+    # WHY? Without limits, one misbehaving container can consume
+    # ALL available memory/CPU — a form of DoS.
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+    # Mount only the source code (not node_modules)
+    # WHY? In development, this lets you edit code and see changes
+    # without rebuilding the image. Remove this in production.
+    # volumes:
+    #   - ./src:/app/src
+
+    # Connect to the custom network
+    networks:
+      - app-network
+
+# =============================================================
+# Networks
+# WHY custom networks?
+# By default, all containers on the default bridge network can
+# communicate with each other — this is a security risk.
+# Custom networks provide isolation. In Phase 6, we'll add
+# Prometheus and Grafana on a separate 'monitoring' network.
+# =============================================================
+networks:
+  app-network:
+    driver: bridge

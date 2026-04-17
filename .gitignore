@@ -1,0 +1,55 @@
+# ==================================
+# Node.js
+# ==================================
+node_modules/
+npm-debug.log*
+
+# ==================================
+# Environment Variables
+# SECURITY: NEVER commit .env files!
+# They contain secrets like API keys,
+# database passwords, and tokens.
+# An attacker with access to your .env
+# can access ALL your services.
+# ==================================
+.env
+.env.local
+.env.production
+.env.staging
+
+# ==================================
+# Test Coverage Reports
+# ==================================
+coverage/
+.nyc_output/
+
+# ==================================
+# IDE / Editor Files
+# ==================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==================================
+# OS Files
+# ==================================
+.DS_Store
+Thumbs.db
+
+# ==================================
+# Docker
+# ==================================
+docker-compose.override.yml
+
+# ==================================
+# Logs
+# ==================================
+logs/
+*.log
+
+# ==================================
+# Build Output
+# ==================================
+dist/
+build/

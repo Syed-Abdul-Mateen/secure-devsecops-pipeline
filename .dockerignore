@@ -1,0 +1,54 @@
+# ==================================
+# Docker Ignore File
+# ==================================
+# WHY .dockerignore?
+# Without it, Docker copies EVERYTHING in your project
+# folder into the build context (even node_modules, .git,
+# test files, .env secrets) — making builds slow and potentially
+# leaking sensitive data into the image.
+#
+# SECURITY RISK: If .env is copied into the image, anyone
+# who pulls your image from Docker Hub gets your secrets!
+# ==================================
+
+# Node dependencies — rebuilt inside container
+node_modules/
+npm-debug.log*
+
+# SECURITY: NEVER copy secrets into the image!
+.env
+.env.*
+!.env.example
+
+# Git history — not needed in container, can leak commit history
+.git/
+.gitignore
+
+# Test files — not needed in production container
+tests/
+coverage/
+*.test.js
+*.spec.js
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+docs/
+
+# Monitoring configs (deployed separately)
+monitoring/
+
+# CI/CD configs
+.github/
+
+# Logs
+logs/
+*.log

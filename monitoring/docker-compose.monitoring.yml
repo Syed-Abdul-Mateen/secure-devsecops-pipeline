@@ -1,0 +1,81 @@
+# =============================================================
+# Monitoring Stack — Docker Compose
+# =============================================================
+# Deploys Prometheus + Grafana alongside the application.
+# Run separately: docker compose -f docker-compose.monitoring.yml up -d
+# =============================================================
+
+version: '3.8'
+
+services:
+  # The application (with metrics endpoint)
+  app:
+    image: ${DOCKER_USERNAME}/secure-devsecops-app:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+      - monitoring-network
+    restart: unless-stopped
+
+  # =============================================================
+  # Prometheus — Metrics Collection
+  # =============================================================
+  # Prometheus "scrapes" (pulls) metrics from your app every 15s.
+  # It stores them in a time-series database.
+  # =============================================================
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring-network
+    restart: unless-stopped
+
+  # =============================================================
+  # Grafana — Visualization Dashboard
+  # =============================================================
+  # Grafana connects to Prometheus and creates beautiful dashboards.
+  # Access at: http://your-server:3001
+  # Default login: admin / admin (CHANGE THIS IN PRODUCTION!)
+  # =============================================================
+  grafana:
+    image: grafana/grafana:10.3.0
+    container_name: grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-changeme}
+      - GF_USERS_ALLOW_SIGN_UP=false    # Disable public registration
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - monitoring-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  app-network:
+    driver: bridge
+  monitoring-network:
+    driver: bridge
