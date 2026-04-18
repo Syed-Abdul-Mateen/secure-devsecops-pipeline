@@ -11,6 +11,7 @@
 const express = require('express');
 const path = require('path');
 const { applySecurityMiddleware } = require('./middleware/security');
+const { metricsMiddleware, metricsRoute } = require('./middleware/metrics');
 const healthRoutes = require('./routes/health');
 const apiRoutes = require('./routes/api');
 
@@ -26,6 +27,13 @@ const app = express();
 applySecurityMiddleware(app);
 
 // =============================================================
+// STEP 1b: Apply metrics middleware
+// WHY: Must be registered AFTER security middleware so Helmet
+// headers are set, but BEFORE routes so all requests are tracked.
+// =============================================================
+app.use(metricsMiddleware);
+
+// =============================================================
 // STEP 2: Mount routes
 // =============================================================
 
@@ -34,6 +42,15 @@ app.use('/', healthRoutes);
 
 // API routes
 app.use('/api', apiRoutes);
+
+// =============================================================
+// Prometheus metrics endpoint
+// WHY /metrics? This is the Prometheus convention.
+// Prometheus is configured to scrape this path every 15s.
+// SECURITY: In production, protect this with auth or restrict
+// it to internal network only (not exposed publicly).
+// =============================================================
+app.get('/metrics', metricsRoute);
 
 // =============================================================
 // STEP 3: Root route — serves a simple landing page

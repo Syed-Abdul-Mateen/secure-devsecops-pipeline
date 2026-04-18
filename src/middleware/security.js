@@ -65,7 +65,9 @@ const rateLimiter = rateLimit({
     retryAfter: '15 minutes',
   },
   // SECURITY: Skip rate limiting for health checks (needed for monitoring)
-  skip: (req) => req.path === '/health' || req.path === '/ready',
+  // SECURITY: Skip rate limiting for infra endpoints
+  // Prometheus scrapes /metrics every 15s — it would hit the limit very fast
+  skip: (req) => req.path === '/health' || req.path === '/ready' || req.path === '/metrics',
 });
 
 /**
