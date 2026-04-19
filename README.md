@@ -75,28 +75,52 @@ To achieve total observability in production, the application is instrumented to
 - **Prometheus Data Store:** A Prometheus container runs alongside the application on the EC2 instance, scraping system-level metrics (via Node Exporter) and application metrics every 15 seconds.
 - **Grafana Visualization:** A Grafana container is used to read data from Prometheus and display the real-time health of the server and the custom application metrics via visual dashboards.
 
-## Running Locally
+## How to Run This App on Your PC (Absolute Beginner Guide)
 
-To run the application on your local machine for development purposes:
+If you are on a Windows PC and have **nothing** installed, this guide is for you! Follow these steps exactly to get the application running on your computer.
 
-1. Clone the repository:
+### Step 1: Install Required Software
+Before you can run the code, your computer needs two essential tools:
+
+1. **Install Git:** This lets you download code from GitHub.
+   - Go to [gitforwindows.org](https://gitforwindows.org/) and download it.
+   - Run the installer and just keep clicking **Next** until it finishes.
+   
+2. **Install Node.js:** This is the engine that runs Javascript applications.
+   - Go to [nodejs.org](https://nodejs.org/).
+   - Download the **LTS (Long Term Support)** version.
+   - Run the installer and click **Next** until it finishes.
+
+### Step 2: Download the Code
+Now we need to get the actual project onto your computer.
+
+1. Open your Windows **Command Prompt**: 
+   - Click your Windows Start button, type `cmd`, and press Enter.
+2. Tell your computer to download the code by typing this command and hitting Enter:
    ```bash
-   git clone https://github.com/YourUsername/secure-devsecops-pipeline.git
+   git clone https://github.com/Syed-Abdul-Mateen/secure-devsecops-pipeline.git
+   ```
+3. Move into the project folder you just downloaded by typing:
+   ```bash
    cd secure-devsecops-pipeline
    ```
 
-2. Install dependencies:
+### Step 3: Install Project Ingredients (Dependencies)
+Like a recipe, this project needs certain ingredients (tools and libraries) to work. 
+
+1. While still inside the Command Prompt, tell Node.js to download all the ingredients by typing:
    ```bash
    npm install
    ```
+   *(Wait a minute or two while it downloads everything—you will see a progress bar).*
 
-3. Start the application:
+### Step 4: Run the App!
+1. Now you are ready to start the server. Type:
    ```bash
    npm run start
    ```
-   The application will become available at `http://localhost:3000`.
+2. You will see a message saying the server is running on port 3000.
+3. Open your favorite web browser (like Chrome, Edge, or Brave).
+4. In the URL address bar at the top, type: **`http://localhost:3000`** and press Enter.
 
-4. Run the local testing suite:
-   ```bash
-   npm test
-   ```
+**Congratulations!** You are now running a Secure Node.js application on your own computer.
