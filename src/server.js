@@ -21,11 +21,11 @@ const PORT = process.env.PORT || 3000;
 
 const server = app.listen(PORT, () => {
   console.log('='.repeat(50));
-  console.log(`🔐 Secure DevSecOps API Server`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🚀 Server running on: http://localhost:${PORT}`);
-  console.log(`❤️  Health check: http://localhost:${PORT}/health`);
-  console.log(`📚 API docs: http://localhost:${PORT}/api/info`);
+  console.log(` Secure DevSecOps API Server`);
+  console.log(` Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(` Server running on: http://localhost:${PORT}`);
+  console.log(`️  Health check: http://localhost:${PORT}/health`);
+  console.log(` API docs: http://localhost:${PORT}/api/info`);
   console.log('='.repeat(50));
 });
 
@@ -39,17 +39,17 @@ const server = app.listen(PORT, () => {
 // Docker waits 10 seconds, then sends SIGKILL (forced kill)
 // =============================================================
 function gracefulShutdown(signal) {
-  console.log(`\n⚠️  Received ${signal}. Starting graceful shutdown...`);
+  console.log(`\n️  Received ${signal}. Starting graceful shutdown...`);
 
   server.close(() => {
-    console.log('✅ HTTP server closed. All pending requests completed.');
-    console.log('👋 Process exiting gracefully.');
+    console.log(' HTTP server closed. All pending requests completed.');
+    console.log(' Process exiting gracefully.');
     process.exit(0);
   });
 
   // Force close after 10 seconds if graceful shutdown fails
   setTimeout(() => {
-    console.error('❌ Graceful shutdown timed out. Forcing exit.');
+    console.error(' Graceful shutdown timed out. Forcing exit.');
     process.exit(1);
   }, 10000);
 }
@@ -67,13 +67,13 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));   // Ctrl+C
 //   3. Exit cleanly (let Docker/PM2 restart the process)
 // =============================================================
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('❌ Unhandled Promise Rejection:', reason);
+  console.error(' Unhandled Promise Rejection:', reason);
   // In production, you'd send this to an error tracking service
   // like Sentry, Datadog, or New Relic
 });
 
 process.on('uncaughtException', (error) => {
-  console.error('💀 Uncaught Exception:', error);
+  console.error(' Uncaught Exception:', error);
   // Uncaught exceptions leave the app in an unknown state
   // The safest thing to do is exit and let the process manager restart
   process.exit(1);

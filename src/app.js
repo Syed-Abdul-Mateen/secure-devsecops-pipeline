@@ -57,7 +57,7 @@ app.get('/metrics', metricsRoute);
 // =============================================================
 app.get('/', (req, res) => {
   res.status(200).json({
-    message: '🔐 Secure DevSecOps Pipeline API',
+    message: ' Secure DevSecOps Pipeline API',
     status: 'running',
     docs: '/api/info',
     health: '/health',

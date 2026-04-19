@@ -1,121 +1,102 @@
-# 🔐 Secure DevSecOps Pipeline
+# Secure DevSecOps CI/CD Pipeline
 
-A production-grade CI/CD pipeline demonstrating DevSecOps best practices, built with Node.js, Docker, GitHub Actions, and AWS.
+This project demonstrates a production-grade, end-to-end Secure DevSecOps CI/CD pipeline. It features a complete workflow that automatically tests, builds, secures, and deploys a Node.js application to an AWS EC2 instance, followed by real-time infrastructure and application monitoring.
 
-![CI/CD Pipeline](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=github-actions)
-![Security](https://img.shields.io/badge/Security-Trivy%20%2B%20OWASP%20ZAP-green)
-![Docker](https://img.shields.io/badge/Container-Docker-2496ED?logo=docker)
-![AWS](https://img.shields.io/badge/Cloud-AWS%20EC2-FF9900?logo=amazon-aws)
-![Monitoring](https://img.shields.io/badge/Monitoring-Prometheus%20%2B%20Grafana-E6522C?logo=prometheus)
+## Table of Contents
+1. [Project Overview](#project-overview)
+2. [Architecture](#architecture)
+3. [Prerequisites](#prerequisites)
+4. [Pipeline Stages](#pipeline-stages)
+5. [Security Features](#security-features)
+6. [Monitoring Stack](#monitoring-stack)
+7. [Running Locally](#running-locally)
 
-## 🏗️ Architecture
+---
 
-```
-Developer Push → GitHub Actions CI/CD → Lint & Test → Docker Build
-     → Trivy Scan → OWASP ZAP DAST → Push to Docker Hub
-     → Deploy to AWS EC2 → Prometheus Metrics → Grafana Dashboard
-```
+## Project Overview
 
-## 🚀 Quick Start
+The primary goal of this project is to implement "shift-left" security principles. By integrating security into the Continuous Integration and Continuous Deployment (CI/CD) pipeline, vulnerabilities are discovered and mitigated automatically before code reaches the production environment. 
 
-### Prerequisites
-- Node.js 18+ 
-- Docker Desktop
-- Git
+The pipeline is entirely automated using GitHub Actions and deploys a containerized application to AWS.
 
-### Local Development
-```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/secure-devsecops-pipeline.git
-cd secure-devsecops-pipeline
+## Architecture
 
-# Install dependencies
-npm install
+This project is built using the following technology stack:
 
-# Create environment file
-cp .env.example .env
+- **Application Backend:** Node.js with the Express framework
+- **Containerization:** Docker (Multi-stage builds)
+- **CI/CD Automation:** GitHub Actions
+- **Static Security Scanning:** Trivy
+- **Dynamic Security Testing (DAST):** OWASP ZAP (Zed Attack Proxy)
+- **Infrastructure:** AWS EC2 (Ubuntu)
+- **Observability Data Collector:** Prometheus
+- **Observability Dashboards:** Grafana
 
-# Run in development mode
-npm run dev
+## Prerequisites
 
-# Run tests
-npm test
+To replicate or contribute to this project, you will need:
+- A GitHub account for repository hosting and GitHub Actions.
+- A Docker Hub account to store container images.
+- An AWS account to host the EC2 instance.
+- Node.js installed locally for development.
 
-# Run linter
-npm run lint
-```
+## Pipeline Stages
 
-### Docker
-```bash
-# Build the image
-docker build -t secure-app .
+The GitHub Actions workflow (`.github/workflows/ci-cd.yml`) is divided into four sequential jobs that trigger upon pushing to the main branch:
 
-# Run the container
-docker run -p 3000:3000 secure-app
-```
+### 1. Test and Lint
+When code is pushed, the pipeline spins up an isolated Ubuntu runner. It installs the project dependencies, lints the codebase, and executes the unit testing suite using Jest. The pipeline will halt immediately if any tests fail, ensuring only functional code proceeds.
 
-## 📡 API Endpoints
+### 2. Docker Build and Static Analysis (Trivy)
+If the tests pass, the pipeline builds a Docker image. Before the image is published, Aqua Security's Trivy scans the container's operating system layers and Node.js dependencies for known Common Vulnerabilities and Exposures (CVEs). If critical or high-severity vulnerabilities are found, the build process is terminated. 
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/` | API landing page |
-| GET | `/health` | Liveness probe |
-| GET | `/ready` | Readiness probe |
-| GET | `/api/info` | API documentation |
-| GET | `/api/tasks` | List all tasks |
-| GET | `/api/tasks/:id` | Get specific task |
-| POST | `/api/tasks` | Create a task |
-| PUT | `/api/tasks/:id` | Update a task |
-| DELETE | `/api/tasks/:id` | Delete a task |
+Once the image is proven secure, it is pushed to Docker Hub.
 
-## 🔒 Security Features
+### 3. Dynamic Application Security Testing (OWASP ZAP)
+This stage focuses on runtime security. The pipeline briefly runs the application container and uses OWASP ZAP to actively probe the live application for misconfigurations, missing security headers, and common web flaws (such as Cross-Site Scripting).
 
-- **Helmet.js** — HTTP security headers (CSP, X-Frame-Options, HSTS)
-- **Rate Limiting** — DDoS/brute-force protection (100 req/15min)
-- **CORS** — Cross-origin request control
-- **Input Validation** — Type checking, length limits, sanitization
-- **XSS Prevention** — HTML tag stripping on user input
-- **Error Handling** — No stack traces leaked to clients
-- **Non-root Docker** — Container runs as unprivileged user
-- **Trivy Scanning** — CVE detection in container images
-- **OWASP ZAP** — Dynamic application security testing
+### 4. Automated Deployment
+After all security gates are successfully passed, the pipeline connects to the AWS EC2 instance securely via SSH. It pulls the latest scanned image from Docker Hub, gracefully shuts down the old container, and spins up the new secure container using Docker run with restart policies.
 
-## 🧪 Testing
+## Security Features
 
-```bash
-# Run all tests with coverage
-npm test
+Security is enforced both in the pipeline and the application codebase:
 
-# Watch mode for development
-npm run test:watch
-```
+- **Non-Root Docker Container:** The Dockerfile is configured to run the Node.js application as an unprivileged user (`node`), mitigating the impact of potential container escapes.
+- **Helmet.js Configuration:** The Node.js application utilizes Helmet to automatically set secure HTTP response headers (e.g., Content-Security-Policy, X-Frame-Options).
+- **Rate Limiting:** IP-based rate limiting is applied to all API routes to protect against brute-force attacks and simple Denial of Service (DoS) attempts.
+- **Cross-Origin Resource Sharing (CORS):** Strict CORS policies are enforced to restrict which domains can interact with the API.
 
-## 📊 Monitoring
+## Monitoring Stack
 
-- **Prometheus** — Metrics collection at `/metrics`
-- **Grafana** — Visual dashboards for HTTP metrics, system health
+To achieve total observability in production, the application is instrumented to track its own performance:
 
-## 📁 Project Structure
+- **Prom-Client Integration:** The Node.js application uses the official Prometheus client to expose a `/metrics` HTTP endpoint. This exposes metrics such as active connections, request duration percentiles, and memory utilization.
+- **Prometheus Data Store:** A Prometheus container runs alongside the application on the EC2 instance, scraping system-level metrics (via Node Exporter) and application metrics every 15 seconds.
+- **Grafana Visualization:** A Grafana container is used to read data from Prometheus and display the real-time health of the server and the custom application metrics via visual dashboards.
 
-```
-secure-devsecops-pipeline/
-├── .github/workflows/     # CI/CD pipeline definitions
-├── src/
-│   ├── app.js             # Express application setup
-│   ├── server.js          # Server entry point
-│   ├── routes/
-│   │   ├── health.js      # Health check endpoints
-│   │   └── api.js         # REST API routes
-│   └── middleware/
-│       └── security.js    # Security middleware config
-├── tests/
-│   └── app.test.js        # Unit tests
-├── monitoring/            # Prometheus & Grafana config
-├── Dockerfile             # Multi-stage production build
-├── docker-compose.yml     # Local development
-└── README.md
-```
+## Running Locally
 
-## 📜 License
+To run the application on your local machine for development purposes:
 
-MIT
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/YourUsername/secure-devsecops-pipeline.git
+   cd secure-devsecops-pipeline
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the application:
+   ```bash
+   npm run start
+   ```
+   The application will become available at `http://localhost:3000`.
+
+4. Run the local testing suite:
+   ```bash
+   npm test
+   ```
