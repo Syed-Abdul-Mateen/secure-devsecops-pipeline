@@ -53,23 +53,23 @@ Developer Workstation
         |
         | git push
         v
-+-------------------+
++--------------------+
 |   GitHub Actions   |
 |                    |
 |  Job 1: Test       |  --> Lint + Unit Tests (Jest, ESLint)
 |  Job 2: Build      |  --> Docker Build + Trivy CVE Scan
 |  Job 3: DAST       |  --> OWASP ZAP Baseline Scan
 |  Job 4: Deploy     |  --> SSH into EC2, pull and run container
-+-------------------+
++--------------------+
         |
         | docker pull + docker run
         v
-+-------------------+       +-------------------+       +-------------------+
++--------------------+       +--------------------+       +-------------------+
 |   AWS EC2 (Ubuntu) |       |    Prometheus      |       |      Grafana      |
 |                    | <---- |  (Scrapes /metrics |       | (Visualizes data  |
 |  Node.js App       |       |   every 15s)       | ----> |  from Prometheus) |
 |  Port 80 -> 3000   |       |  Port 9090         |       |  Port 3001        |
-+-------------------+       +-------------------+       +-------------------+
++--------------------+       +--------------------+       +-------------------+
 ```
 
 ---
