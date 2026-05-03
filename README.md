@@ -76,10 +76,10 @@ Developer Workstation
 
 ## Technology Stack
 
-| Layer                  | Technology                          | Purpose                                                    |
-|------------------------|-------------------------------------|------------------------------------------------------------|
-| Application Runtime    | Node.js 22, Express 4               | REST API server                                            |
-| Security Middleware    | Helmet, express-rate-limit, CORS     | HTTP header hardening, rate limiting, origin restriction    |
+| Layer                  | Technology                           | Purpose                                                    |
+|------------------------|--------------------------------------|------------------------------------------------------------|
+| Application Runtime    | Node.js 22, Express 4                | REST API server                                            |
+| Security Middleware    | Helmet, express-rate-limit, CORS     | HTTP header hardening, rate limiting, origin restriction   |
 | Testing                | Jest, Supertest                      | Unit testing with HTTP assertion support                   |
 | Linting                | ESLint 9 (flat config)               | Static code analysis and style enforcement                 |
 | Containerization       | Docker (multi-stage, Alpine-based)   | Minimal, secure production images                          |
@@ -222,25 +222,25 @@ Push to main
 
 ## Application Security Controls
 
-| Control                    | Implementation                                      | Threat Mitigated                                |
-|----------------------------|-----------------------------------------------------|-------------------------------------------------|
-| HTTP Security Headers      | Helmet.js with strict CSP directives                | XSS, clickjacking, MIME sniffing                |
-| Rate Limiting              | express-rate-limit (100 req/15 min per IP)          | Brute-force attacks, basic DoS                  |
-| CORS Policy                | Configurable allowed origins via environment        | Cross-site request forgery                      |
-| Non-Root Container         | Dockerfile USER directive (node, UID 1000)          | Container escape privilege escalation           |
-| Input Validation           | Type checking, length limits on all API inputs      | Injection, buffer overflow                      |
-| HTML Sanitization          | Regex-based tag stripping on user inputs            | Stored XSS                                      |
-| Request Body Size Limit    | express.json({ limit: '10kb' })                     | Large payload DoS                               |
+| Control                    | Implementation                                       | Threat Mitigated                                |
+|----------------------------|------------------------------------------------------|-------------------------------------------------|
+| HTTP Security Headers      | Helmet.js with strict CSP directives                 | XSS, clickjacking, MIME sniffing                |
+| Rate Limiting              | express-rate-limit (100 req/15 min per IP)           | Brute-force attacks, basic DoS                  |
+| CORS Policy                | Configurable allowed origins via environment         | Cross-site request forgery                      |
+| Non-Root Container         | Dockerfile USER directive (node, UID 1000)           | Container escape privilege escalation           |
+| Input Validation           | Type checking, length limits on all API inputs       | Injection, buffer overflow                      |
+| HTML Sanitization          | Regex-based tag stripping on user inputs             | Stored XSS                                      |
+| Request Body Size Limit    | express.json({ limit: '10kb' })                      | Large payload DoS                               |
 | Error Response Suppression | Global error handler hides stack traces in production| Information disclosure                          |
-| Payload Size Limit         | JSON and URL-encoded body limits                    | Resource exhaustion                             |
+| Payload Size Limit         | JSON and URL-encoded body limits                     | Resource exhaustion                             |
 | Security Audit Logging     | Morgan request logger (combined format in production)| Incident investigation, compliance              |
 
 ---
 
 ## API Endpoints
 
-| Method | Path              | Description                              |
-|--------|-------------------|------------------------------------------|
+| Method | Path              | Description                               |
+|--------|-------------------|-------------------------------------------|
 | GET    | `/`               | Root endpoint, returns API status         |
 | GET    | `/health`         | Liveness probe (uptime, memory usage)     |
 | GET    | `/ready`          | Readiness probe (dependency health)       |
@@ -261,8 +261,8 @@ Push to main
 Before proceeding, install the following software on your machine:
 
 | Software   | Minimum Version | Download Link                                  | Verification Command     |
-|------------|----------------|-------------------------------------------------|--------------------------|
-| Git        | 2.x            | https://git-scm.com/downloads                  | `git --version`          |
+|------------|-----------------|-------------------------------------------------|--------------------------|
+| Git        | 2.x      -      | https://git-scm.com/downloads                  | `git --version`          |
 | Node.js    | 18.x (LTS recommended: 22.x) | https://nodejs.org/              | `node --version`         |
 | npm        | (bundled with Node.js)        | (installed with Node.js)         | `npm --version`          |
 | Docker     | 20.x (only for Options B and C) | https://www.docker.com/get-started | `docker --version`     |
